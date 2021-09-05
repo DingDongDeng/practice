@@ -29,9 +29,10 @@ public class WebClientConfig {
     private ExchangeFilterFunction logReqFilter() {
         return ExchangeFilterFunction.ofRequestProcessor((clientRequest) -> {
             StringBuilder logReqBuilder = new StringBuilder();
-            logReqBuilder.append("url : ").append(clientRequest.url());
-            logReqBuilder.append(", method : ").append(clientRequest.method());
-            logReqBuilder.append(", headers : ").append(clientRequest.headers());
+            logReqBuilder.append("url : ").append(clientRequest.url()).append("\n");
+            logReqBuilder.append("method : ").append(clientRequest.method()).append("\n");
+            logReqBuilder.append("headers : ").append(clientRequest.headers()).append("\n");
+//            logReqBuilder.append(", body : ").append(clientRequest.body().toString()); //fixme body도 로깅하고 싶
             log.info("webclient request: {}", logReqBuilder.toString());
 
             return Mono.just(clientRequest);
@@ -40,12 +41,12 @@ public class WebClientConfig {
 
     private ExchangeFilterFunction logResFilter() {
         return ExchangeFilterFunction.ofResponseProcessor(clientResponse -> clientResponse
-            .bodyToMono(String.class)
+            .bodyToMono(String.class) //fixme 이미 응답이 컨슈밍돼서 block했을때 비어있음
             .flatMap(body -> {
                 StringBuilder logResBuilder = new StringBuilder();
-                logResBuilder.append("status : ").append(clientResponse.statusCode());
-                logResBuilder.append(", headers : ").append(clientResponse.headers().asHttpHeaders().toString());
-                logResBuilder.append(", body : ").append(body);
+                logResBuilder.append("status : ").append(clientResponse.statusCode()).append("\n");
+                logResBuilder.append(", headers : ").append(clientResponse.headers().asHttpHeaders().toString()).append("\n");
+                logResBuilder.append(", body : ").append(body).append("\n");
 
                 log.info("webclient response : {}", logResBuilder.toString());
                 return Mono.just(clientResponse);

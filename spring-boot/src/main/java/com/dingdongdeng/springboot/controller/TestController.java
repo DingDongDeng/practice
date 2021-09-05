@@ -1,12 +1,18 @@
 package com.dingdongdeng.springboot.controller;
 
+import com.dingdongdeng.springboot.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
+import org.springframework.web.reactive.function.client.WebClientException;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -91,6 +97,40 @@ public class TestController {
         return "something....";
     }
 
+    @GetMapping("/case/5")
+    public String case5(String httpStatus) {
+        String response = "";
+        try {
+            response = webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                    .path("/test/target/2")
+                    .queryParam("httpStatus", httpStatus)
+                    .build()
+                )
+                .retrieve()
+                .bodyToMono(String.class)
+//                .exchangeToMono(res -> res.toEntity(String.class))
+//                .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(() -> new CustomException("400 에러")))
+//                .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(() -> new CustomException("500 에러")))
+//                .doOnSuccess(res -> {
+//                    log.info("res : {}", res);
+//                })
+//                .doOnError()
+                .block();
+
+        } catch (WebClientResponseException e) {
+            log.error("web client response error ", e);
+        } catch (WebClientRequestException e) {
+            log.error("web client request error", e);
+        } catch (WebClientException e) {
+            log.error("web client error", e);
+        } catch (CustomException e) {
+            log.error("custom error ", e);
+        } catch (Exception e) {
+            log.error("error", e);
+        }
+        return response;
+    }
 
     @GetMapping("/target/1")
     public String target1() {
@@ -99,6 +139,11 @@ public class TestController {
         heavyProcess();
         log.info("target1 end : {}", System.currentTimeMillis() - current + "ms");
         return "This is heavy process result." + System.currentTimeMillis();
+    }
+
+    @GetMapping("/target/2")
+    public ResponseEntity target2(int httpStatus) {
+        return ResponseEntity.status(httpStatus).body("response status is " + httpStatus);
     }
 
     private void heavyProcess() {
