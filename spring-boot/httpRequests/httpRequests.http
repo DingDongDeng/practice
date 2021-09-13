@@ -5,3 +5,8 @@ GET http://localhost:8080/test/case/5?httpStatus=200
 
 ###
 GET http://localhost:8080/test/target/2?httpStatus=200
+
+
+
+### exception test
+GET http://localhost:8080/test/exception?type=5

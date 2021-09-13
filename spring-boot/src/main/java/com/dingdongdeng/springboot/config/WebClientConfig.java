@@ -19,7 +19,7 @@ public class WebClientConfig {
         return WebClient.builder()
             .baseUrl("http://localhost:8080")
             .filters(exchangeFilterFunctions -> {
-                exchangeFilterFunctions.add(logResFilter());
+//                exchangeFilterFunctions.add(logResFilter());
                 exchangeFilterFunctions.add(logReqFilter());
                 exchangeFilterFunctions.add(mdcFilter());
             })
